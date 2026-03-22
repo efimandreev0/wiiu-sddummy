@@ -2,19 +2,24 @@ name: Build WiiU Plugin
 
 on:
   push:
-  workflow_dispatch: # Позволяет запускать сборку вручную кнопкой
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: devkitpro/devkitppc:latest # Вот он, нужный нам Докер-контейнер!
+      image: devkitpro/devkitppc:latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          submodules: recursive # Скачиваем все зависимости, если они есть
+          submodules: recursive
+
+      # ВОТ ЭТОТ НОВЫЙ ШАГ: скачиваем нужные библиотеки WUPS, WUT и WUMS
+      - name: Install Wii U dependencies
+        run: |
+          dkp-pacman -Syu --noconfirm wiiu-wut wiiu-wups wiiu-wums
 
       - name: Build project (Make)
         run: make
