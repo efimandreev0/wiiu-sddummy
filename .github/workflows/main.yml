@@ -8,7 +8,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: devkitpro/devkitppc:latest
+      # БЕРЕМ ОБРАЗ СПЕЦИАЛЬНО ДЛЯ WII U (многое уже установлено)
+      image: devkitpro/wiiudev:latest
 
     steps:
       - name: Checkout code
@@ -16,10 +17,12 @@ jobs:
         with:
           submodules: recursive
 
-      # ВОТ ЭТОТ НОВЫЙ ШАГ: скачиваем нужные библиотеки WUPS, WUT и WUMS
-      - name: Install Wii U dependencies
+      - name: Fix DevkitPro Network & Install deps
         run: |
-          dkp-pacman -Syu --noconfirm wiiu-wut wiiu-wups wiiu-wums
+          # Выключаем таймауты, чтобы он не сбрасывал соединение при медленной скорости
+          echo "DisableDownloadTimeout" >> /opt/devkitpro/pacman/etc/pacman.conf
+          # Качаем только 3 пакета без полного обновления системы (-Sy вместо -Syu)
+          dkp-pacman -Sy --noconfirm wiiu-wut wiiu-wups wiiu-wums
 
       - name: Build project (Make)
         run: make
