@@ -1,0 +1,29 @@
+name: Build WiiU Plugin
+
+on:
+  push:
+  workflow_dispatch: # Позволяет запускать сборку вручную кнопкой
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: devkitpro/devkitppc:latest # Вот он, нужный нам Докер-контейнер!
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive # Скачиваем все зависимости, если они есть
+
+      - name: Build project (Make)
+        run: make
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdcafiine_build_files
+          path: |
+            **/*.wps
+            **/*.elf
+            **/*.wuhb
